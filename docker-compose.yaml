@@ -1,0 +1,37 @@
+version: '3.8'
+
+volumes:
+  dbdata:
+    driver: local
+
+services:
+  db:
+    container_name: django_admin_db
+    image: mysql:5.7.22
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    env_file: .env
+    restart: always
+
+  admin_api:
+    container_name: django_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    image: antoniopapa1991/django-frontend
+    ports:
+      - 8080:80
+    depends_on:
+      - admin_api
+
